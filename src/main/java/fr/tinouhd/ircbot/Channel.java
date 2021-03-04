@@ -16,12 +16,21 @@ public class Channel
 		writer.write("JOIN #" + name + "\r\n");
 	}
 
+	/**
+	 * Send a message in this {@code Channel}.
+	 * @param msg the message.
+	 * @throws IOException if an I/O error occurs.
+	 */
 	public void sendMessage(String msg) throws IOException
 	{
 		writer.write("PRIVMSG #" + name + " :" + msg + "\r\n");
 		writer.flush();
 	}
 
+	/**
+	 * Quit this {@code Channel}.
+	 * @throws IOException if an I/O error occurs.
+	 */
 	protected void quit() throws IOException
 	{
 		writer.write("PART #" + name + "\r\n");

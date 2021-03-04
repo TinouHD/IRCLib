@@ -2,7 +2,7 @@ package fr.tinouhd.ircbot.event;
 
 public abstract class IRCEvent extends Event
 {
-	private String rawLine;
+	private final String rawLine;
 
 	public IRCEvent(String rawLine)
 	{

@@ -30,21 +30,56 @@ public class IRCConnection implements AutoCloseable
 
 	private Thread t;
 
+	/**
+	 * Create a new {@code IRCConnection} with default port.
+	 * @param host the hostname/IP address of the IRC server.
+	 * @param name the username you want to use.
+	 * @throws IOException if something is wrong with the socket connection.
+	 * @throws IRCException if the IRC connection send an error code.
+	 */
 	public IRCConnection(String host, String name) throws IOException, IRCException
 	{
 		this(host, 6667, name);
 	}
 
+	/**
+	 * Create a new {@code IRCConnection}.
+	 * @param host the hostname/IP address of the IRC server.
+	 * @param port the port to use for the connection.
+	 * @param name the username you want to use.
+	 * @throws IOException if something is wrong with the socket connection.
+	 * @throws IRCException if the IRC connection send an error code.
+	 */
 	public IRCConnection(String host, int port, String name) throws IOException, IRCException
 	{
 		this(host, port, name, null);
 	}
 
+	/**
+	 * Create a new {@code IRCConnection} with default port.
+	 * @param host the hostname/IP address of the IRC server.
+	 * @param name the username you want to use.
+	 * @param pass the password to auth you.
+	 * @throws IOException if something is wrong with the socket connection.
+	 * @throws IRCException if the IRC connection send an error code.
+	 */
 	public IRCConnection(String host, String name, String pass) throws IOException, IRCException
 	{
 		this(host, 6667, name, pass);
 	}
 
+	/**
+	 * Create a new {@code IRCConnection}.
+	 * @param host the hostname/IP address of the IRC server.
+	 * @param port the port to use for the connection.
+	 * @param name the username you want to use.
+	 * @param pass the password to auth you.
+	 * @throws IOException if something is wrong with the socket connection.
+	 * @throws IRCException if the IRC connection send an error code.
+	 * @see #connect()
+	 * @see #register()
+	 * @see #start()
+	 */
 	public IRCConnection(String host, int port, String name, String pass) throws IOException, IRCException
 	{
 		this.host = host;
@@ -66,6 +101,7 @@ public class IRCConnection implements AutoCloseable
 				break;
 			} else if(line.matches("$* ([4-5][0-9]{2}) *^"))
 			{
+				close();
 				throw new IRCException(Integer.parseInt(Pattern.compile("$* ([4-5][0-9]{2}) *^").matcher(line).group(1)));
 			}
 		}
@@ -73,6 +109,10 @@ public class IRCConnection implements AutoCloseable
 		start();
 	}
 
+	/**
+	 * Create the connection to the {@code Socket} and prepare the {@code BufferedWriter} and {@code BufferedReader}.
+	 * @throws IOException if an I/O error occurs when creating the {@code Socket}.
+	 */
 	private void connect() throws IOException
 	{
 		socket = new Socket(host, port);
@@ -81,17 +121,27 @@ public class IRCConnection implements AutoCloseable
 		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	}
 
-	private void disconnect()
+	/**
+	 * Quit all channels and close.
+	 * @see #close()
+	 */
+	private void disconnect() throws IOException
 	{
-		channels.forEach((n,c) -> {
+		channels.keySet().forEach(n -> {
 			try
 			{
-				c.quit();
+				quitChannel(n);
 			} catch (IOException e)
 			{}
 		});
+
+		close();
 	}
 
+	/**
+	 * Register the user on the IRC connection.
+	 * @throws IOException if an I/O error occurs.
+	 */
 	private void register() throws IOException
 	{
 		if(pass != null) writer.write("PASS " + pass + "\r\n");
@@ -100,6 +150,13 @@ public class IRCConnection implements AutoCloseable
 		writer.flush();
 	}
 
+	/**
+	 * Create and return the channel object and join the specified channel.
+	 * @param name the name of the channel to join. (without the #)
+	 * @return the {@code Channel}.
+	 *
+	 * @throws IOException if an I/O error occurs.
+	 */
 	public Channel joinChannel(String name) throws IOException
 	{
 		if(name.startsWith("#")) name = name.substring(1);
@@ -108,13 +165,23 @@ public class IRCConnection implements AutoCloseable
 		return c;
 	}
 
+	/**
+	 * Quit the specified channel.
+	 * @param name the name of the channel to quit. (without the #)
+	 * @throws IOException if an I/O error occurs.
+	 */
 	public void quitChannel(String name) throws IOException
 	{
 		if(name.startsWith("#")) name = name.substring(1);
-		Channel c = channels.get(name);
+		Channel c = channels.remove(name);
 		c.quit();
 	}
 
+	/**
+	 * Send an raw command on the IRC connection.
+	 * @param command the raw command.
+	 * @throws IOException if an I/O error occurs.
+	 */
 	public void sendRaw(String command) throws IOException
 	{
 		command = command.endsWith("\r\n") ? command : command + "\r\n";
@@ -122,6 +189,9 @@ public class IRCConnection implements AutoCloseable
 		writer.flush();
 	}
 
+	/**
+	 * Start the thread that read lines from the IRC connection.
+	 */
 	private void start()
 	{
 		t = new Thread(() -> {
@@ -142,6 +212,11 @@ public class IRCConnection implements AutoCloseable
 		t.start();
 	}
 
+	/**
+	 * Process raw line from the IRC connection.
+	 * @param line the line to process.
+	 * @throws IOException if an I/O error occurs.
+	 */
 	private void processLine(String line) throws IOException
 	{
 		String[] args = line.split(" ");
@@ -188,22 +263,37 @@ public class IRCConnection implements AutoCloseable
 		}
 	}
 
+	/**
+	 * @return the {@code EventManager} for this {@code IRCConnection}.
+	 */
 	public EventManager getEventManager()
 	{
 		return em;
 	}
 
+	/**
+	 * Command provider is the prefix of the command name. (default "!")
+	 * @return the "command provider".
+	 */
 	public String getCommandProvider()
 	{
 		return commandProvider;
 	}
 
+	/**
+	 * Command provider is the prefix of the command name. (default "!")
+	 * @param commandProvider the new command provider.
+	 */
 	public void setCommandProvider(String commandProvider)
 	{
 		this.commandProvider = commandProvider;
 	}
 
-	@Override public void close() throws Exception
+	/**
+	 * Stop the {@code Thread}, disconnect from all {@code Channel}, close the {@code BufferedWriter}, close the {@code BufferedReader} and close close the socket connection.
+	 * @throws IOException if an I/O error occurs.
+	 */
+	@Override public void close() throws IOException
 	{
 		t.interrupt();
 		disconnect();

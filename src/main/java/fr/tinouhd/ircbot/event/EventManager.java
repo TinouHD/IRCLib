@@ -11,6 +11,9 @@ public class EventManager
 
 	private final Map<String, List<Pair<Listener, Method>>> handlers = new HashMap<>();
 
+	/**
+	 * @param listener the events listener to add in this {@code EventManager}.
+	 */
 	public void addListener(Listener listener)
 	{
 		for (Method m : listener.getClass().getMethods())
@@ -28,6 +31,9 @@ public class EventManager
 		}
 	}
 
+	/**
+	 * @param event the event to call in this {@code EventManager}.
+	 */
 	public void callEvent(Event event)
 	{
 		if(handlers.containsKey(event.getClass().getCanonicalName()))
