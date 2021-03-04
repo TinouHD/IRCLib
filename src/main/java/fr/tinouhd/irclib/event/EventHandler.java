@@ -1,4 +1,4 @@
-package fr.tinouhd.ircbot.event;
+package fr.tinouhd.irclib.event;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

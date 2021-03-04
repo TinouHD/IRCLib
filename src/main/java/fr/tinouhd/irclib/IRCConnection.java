@@ -1,7 +1,7 @@
-package fr.tinouhd.ircbot;
+package fr.tinouhd.irclib;
 
-import fr.tinouhd.ircbot.event.*;
-import fr.tinouhd.ircbot.event.irc.*;
+import fr.tinouhd.irclib.event.*;
+import fr.tinouhd.irclib.event.irc.*;
 
 import java.io.*;
 import java.net.Socket;

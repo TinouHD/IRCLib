@@ -1,4 +1,4 @@
-package fr.tinouhd.ircbot;
+package fr.tinouhd.irclib;
 
 public class IRCException extends Exception
 {

@@ -1,4 +1,4 @@
-package fr.tinouhd.ircbot.event;
+package fr.tinouhd.irclib.event;
 
 import javafx.util.Pair;
 

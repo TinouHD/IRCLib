@@ -1,4 +1,4 @@
-package fr.tinouhd.ircbot;
+package fr.tinouhd.irclib;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

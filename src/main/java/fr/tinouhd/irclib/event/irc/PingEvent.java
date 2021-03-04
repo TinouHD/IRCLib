@@ -1,6 +1,6 @@
-package fr.tinouhd.ircbot.event.irc;
+package fr.tinouhd.irclib.event.irc;
 
-import fr.tinouhd.ircbot.event.IRCEvent;
+import fr.tinouhd.irclib.event.IRCEvent;
 
 public class PingEvent extends IRCEvent
 {

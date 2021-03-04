@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.tinouhd</groupId>
-    <artifactId>IRCBot</artifactId>
-    <version>0.0.1</version>
+    <artifactId>IRCLib</artifactId>
+    <version>0.0.2</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
