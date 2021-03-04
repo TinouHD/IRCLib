@@ -10,6 +10,7 @@ public class Channel
 
 	protected Channel(String name, BufferedWriter writer) throws IOException
 	{
+		if(name.startsWith("#")) name = name.substring(1);
 		this.name = name;
 		this.writer = writer;
 		writer.write("JOIN #" + name + "\r\n");

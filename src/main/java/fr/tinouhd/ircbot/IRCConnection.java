@@ -101,6 +101,7 @@ public class IRCConnection implements AutoCloseable
 
 	public Channel joinChannel(String name) throws IOException
 	{
+		if(name.startsWith("#")) name = name.substring(1);
 		Channel c = new Channel(name, writer);
 		channels.put(name, c);
 		return c;
@@ -108,6 +109,7 @@ public class IRCConnection implements AutoCloseable
 
 	public void quitChannel(String name) throws IOException
 	{
+		if(name.startsWith("#")) name = name.substring(1);
 		Channel c = channels.get(name);
 		c.quit();
 	}
