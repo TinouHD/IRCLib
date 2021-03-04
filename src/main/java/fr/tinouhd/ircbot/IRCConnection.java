@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class IRCConnection implements AutoCloseable
 {
@@ -29,22 +30,22 @@ public class IRCConnection implements AutoCloseable
 
 	private Thread t;
 
-	public IRCConnection(String host, String name) throws IOException
+	public IRCConnection(String host, String name) throws IOException, IRCException
 	{
 		this(host, 6667, name);
 	}
 
-	public IRCConnection(String host, int port, String name) throws IOException
+	public IRCConnection(String host, int port, String name) throws IOException, IRCException
 	{
 		this(host, port, name, null);
 	}
 
-	public IRCConnection(String host, String name, String pass) throws IOException
+	public IRCConnection(String host, String name, String pass) throws IOException, IRCException
 	{
 		this(host, 6667, name, pass);
 	}
 
-	public IRCConnection(String host, int port, String name, String pass) throws IOException
+	public IRCConnection(String host, int port, String name, String pass) throws IOException, IRCException
 	{
 		this.host = host;
 		this.port = port;
@@ -63,9 +64,9 @@ public class IRCConnection implements AutoCloseable
 				writer.write("PONG " + line.split(" ")[0] + "\r\n");
 				writer.flush();
 				break;
-			} else if (line.contains("433"))
+			} else if(line.matches("$* ([4-5][0-9]{2}) *^"))
 			{
-				System.exit(1);
+				throw new IRCException(Integer.parseInt(Pattern.compile("$* ([4-5][0-9]{2}) *^").matcher(line).group(1)));
 			}
 		}
 
@@ -80,7 +81,7 @@ public class IRCConnection implements AutoCloseable
 		reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	}
 
-	private void disconnect() throws IOException
+	private void disconnect()
 	{
 		channels.forEach((n,c) -> {
 			try
