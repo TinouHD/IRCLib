@@ -1,6 +1,6 @@
 package fr.tinouhd.irclib;
 
-import fr.tinouhd.irclib.event.*;
+import fr.tinouhd.irclib.event.EventManager;
 import fr.tinouhd.irclib.event.irc.*;
 
 import java.io.*;
@@ -223,7 +223,7 @@ public class IRCConnection implements AutoCloseable
 		em.callEvent(new LineReadEvent(line));
 		if(line.startsWith("@"))
 		{
-			processLine(line.substring(line.indexOf(" ")));
+			processLine(line.substring(line.indexOf(" ") + 1));
 		}else if(line.startsWith(":"))
 		{
 			switch (args[1])
@@ -235,13 +235,13 @@ public class IRCConnection implements AutoCloseable
 					em.callEvent(new PartEvent(line, channels.get(args[2].substring(1)), args[0].split("!")[0].substring(1)));
 					break;
 				case "PRIVMSG":
-					String msg = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+					String msg = String.join(" ", Arrays.copyOfRange(args, 3, args.length)).substring(1);
 					if(msg.startsWith(commandProvider))
 					{
-						em.callEvent(new CommandEvent(line, msg.split(" ")[0].substring(1), Arrays.copyOfRange(msg.split(" "), 1, msg.split(" ").length)));
+						em.callEvent(new CommandEvent(line, args[0].split("!")[0].substring(1), msg.split(" ")[0].substring(1), Arrays.copyOfRange(msg.split(" "), 1, msg.split(" ").length)));
 					}else
 					{
-						em.callEvent(new PrivmsgEvent(line, channels.get(args[2].substring(1)), msg));
+						em.callEvent(new PrivmsgEvent(line, args[0].split("!")[0].substring(1), channels.get(args[2].substring(1)), msg));
 					}
 					break;
 				default:
