@@ -7,8 +7,8 @@ Java library for handle a connection to Internet Relay Chat.
 
 ## Exemples
 ### Hello World !
-````Java
+```Java
 IRCConnection conn = new IRCConnection("hostname.exemple.com", "MyUserName");
 Channel c = conn.joinChannel("channel");
 c.sendMessage("Hello World !");
-````
+```
