@@ -166,6 +166,23 @@ public class IRCConnection implements AutoCloseable
 	}
 
 	/**
+	 * If already connected, return the channel else try to connect and return the channel.
+	 * @param name the name of the channel to join. (without the #)
+	 * @return the specified channel.
+	 */
+	public Channel getChannel(String name) throws IOException
+	{
+		if(name.startsWith("#")) name = name.substring(1);
+		if(channels.containsKey(name))
+		{
+			return channels.get(name);
+		}else
+		{
+			return joinChannel(name);
+		}
+	}
+
+	/**
 	 * Quit the specified channel.
 	 * @param name the name of the channel to quit. (without the #)
 	 * @throws IOException if an I/O error occurs.
